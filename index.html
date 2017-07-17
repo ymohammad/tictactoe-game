@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>TicTacToe Game</title>
+  
+  
+  <link rel='stylesheet prefetch' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<link rel='stylesheet prefetch' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'>
+<link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Gravitas+One'>
+<link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Black+Ops+One'>
+<link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Alegreya'>
+<link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Baloo+Chettan'>
+<link rel='stylesheet prefetch' href='https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css'>
+
+      <link rel="stylesheet" href="css/style.css">
+
+  
+</head>
+
+<body>
+  <div id="game-board-div" class="game-board">
+  			<div class="row">
+  				<h1 class="header-style">Tic Tac Toe</h1>
+  			</div>
+  			<div class="row">
+  				<div class="col-lg-4">
+  					<div class="game-stats">
+					<table id="score-board-table">
+						<thead>
+							<tr>
+								<th colspan="2">Score Board</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Player O</td>
+								<td><span id="play-o-stats">0</span> points</td>
+							</tr>
+							<tr>
+								<td>Player X</td>
+								<td><span id="play-x-stats">0</span> points</td>
+							</tr>
+							<tr>
+								<td colspan="2"><button type="button"
+										class="btn btn-default local-button" id="restart-game"
+										style="text-align: center;">Restart</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<span id="whosNext"></span>
+				</div>
+  				</div>
+	  			<div class="col-lg-4" id="board-div">
+
+	  			</div>
+  			</div>
+  		</div>
+  		<div class="hidden" id="initial-game-div">
+  			<div class="initial-board-div">
+  				 <div class="initial-board-div">
+					  <h4 class="modal-title" style="text-align: center;">Select Game Settings</h4>
+					  <hr style="border: 1px solid #4C2E11;">
+					  
+					  <div style="width: 60%; margin-left: 15%;">
+					  		<b>Play against</b> : <input type="radio" name="playag" value="computer" checked>Computer &nbsp; 
+					  							  <input type="radio" name="playag" value="human"> Human
+							<br>
+							<b>Select Your Symbol</b> : <input type="radio" name="symbol" value="O" checked> O &nbsp; 
+														<input type="radio" name="symbol" value="X"> X
+					    <br><br>
+					    <button type="button" class="btn btn-default local-button" id="start-game" style="text-align: center;margin-left: 35%;" onclick="startGame();">Start Game</button> 
+					 </div>
+				</div>
+  			</div>
+  		</div>
+  		<div class="hidden" id="board-game-div">
+		  			<table id="gameboard_table">
+		  				<tr id="row1">
+		  					<td id="00" onclick="mainActionMethod(this.id);"></td>
+		  					<td id="01" onclick="mainActionMethod(this.id);"></td>
+		  					<td id="02" onclick="mainActionMethod(this.id);"></td>
+		  				</tr>
+		  				<tr id="row2">
+		  					<td id="10" onclick="mainActionMethod(this.id);"></td>
+		  					<td id="11" onclick="mainActionMethod(this.id);"></td>
+		  					<td id="12" onclick="mainActionMethod(this.id);"></td>
+		  				</tr>
+		  				<tr id="row3">
+		  					<td id="20" onclick="mainActionMethod(this.id);"></td>
+		  					<td id="21" onclick="mainActionMethod(this.id);"></td>
+		  					<td id="22" onclick="mainActionMethod(this.id);"></td>
+		  				</tr>
+		  			</table>
+	  	</div>
+  		<div class="site-footer" id="footer-div">
+			<div>Developed by <a href="https://www.linkedin.com/in/mohammad-sufiyan-al-yousufi-0279743a" target="_blank" style="font-size: inherit;">Mohammad Sufiyan Al Yousufi</a>.<br>Contact information: <a href="mailto:mdsufyan2005@gmail.com" style="font-size: inherit;">mdsufyan2005@gmail.com</a><br>
+		  © 2016 AlySufiyan Software Development Labs </div>
+		</div>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  		<script src="https://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+  		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  		  		<!-- Local JS for clock -->
+  		<script>
+var OPPONENT = "Opponent";
+var WINNER = "WINNER";
+var FIRST_SYMBOL = "X";
+var SECOND_SYMBOL = "O";
+var winningPatternsArr = [];
+var gameBoardPlaceHoldersArr = [['','',''],['','',''],['','','']];
+var movedCount = 0;
+var computerMoveThId;
+var blinkingThId;
+var firstPlayerSymbol;
+var lockBoard = false;
+
+populateWinningPatternArray();
+
+var currentSymbol;
+var isComputerPlayer;
+var computerSymbol;
+
+$(document).ready(function() {
+	initializeGUI();
+	$("#restart-game").click(function(eventObj) {
+		restartGame();
+	});
+});
+function makeBoardReadyForNewGame() {
+	initiateGame();
+	whoIsNext(currentSymbol);
+	computerMoveThId = setInterval(computerMoveThread, 500);
+}
+function startGame() {
+	initializePlayerSymbols();
+	var gameBoardContent = $("#board-game-div").html();
+	$("#board-div").html(gameBoardContent);
+	$("#footer-div").css("margin-top", "4%");
+	makeBoardReadyForNewGame();
+}
+function initiateGame() {
+	clearInterval(computerMoveThId);
+	clearInterval(blinkingThId);
+	lockBoard = false;
+	movedCount = 0;
+	gameBoardPlaceHoldersArr = [['','',''],['','',''],['','','']];
+	
+	for (var i = 0; i<gameBoardPlaceHoldersArr.length; i++) {
+		var innerArr = gameBoardPlaceHoldersArr[i];
+		for (var j=0; j<innerArr.length; j++) {
+			document.getElementById(i+""+j).innerHTML = "";
+			document.getElementById(i+""+j).style.backgroundColor='#E7C9A6';
+		}
+	}
+	selectRandonNAssignCurrentSymbol();
+}
+function initializeGUI() {
+	var initialContent = $("#initial-game-div").html();
+	$("#board-div").html(initialContent);
+	$("#footer-div").css("margin-top", "19%");
+}
+function restartGame() {
+	initiateGame();
+	initializePlayerSymbols();
+	initializeGUI();
+	resetScoreBoard();
+}
+function selectRandonNAssignCurrentSymbol() {
+	var compChoice = 1;
+	var returnResult = randomInt(1, 2);
+	//console.log("RandomResult :" + returnResult);
+	if (returnResult === 1) {
+		currentSymbol = firstPlayerSymbol; //If it is against computer, playerFirst is computer otherwise, who selected the symbol.
+	} else {
+		currentSymbol = computerSymbol;
+	}
+}
+function initializePlayerSymbols() {
+	firstPlayerSymbol = getFirstPlayerSymobol();
+	isComputerPlayer = isAgainstComputer();
+	computerSymbol = getSecondPlayerSymbol();
+	//console.log(">>> currentSymbol :" + currentSymbol + ">>> isComputerPlayer :" + isComputerPlayer + " >>> computerSymbol:" + computerSymbol);
+}
+function whoIsNext(symbol) {
+	$("#whosNext").html("Next move by the player " + symbol);
+}
+function getFirstPlayerSymobol() {
+	return $("input:radio[name='symbol']:checked").val(); 
+}
+function getSecondPlayerSymbol() {
+	return getNextSymbol(getFirstPlayerSymobol());
+}
+function isAgainstComputer() {
+	var result = false;
+	var computerOrHuman = $("input:radio[name='playag']:checked").val();
+	//console.log(">>> computer or human :" + computerOrHuman);
+	if (computerOrHuman === "computer") {
+		result = true;
+	}
+	return result;
+}
+function randomInt(minInt, maxInt)
+{
+    return Math.floor(Math.random()*(maxInt-minInt+1)+minInt);
+}
+function makeAMove(cellIndex) {
+		
+	var rowIndex = cellIndex[0];
+	var columnIndex = cellIndex[1];
+	var movedSymbol = currentSymbol;
+	if (!lockBoard && document.getElementById(cellIndex).innerHTML === "") {
+		moveMade(movedSymbol, rowIndex, columnIndex);
+		document.getElementById(cellIndex).innerHTML = movedSymbol;
+		movedCount++;
+		var winningMove = verifyNGetWinningMove();
+		if (winningMove) {
+			//End the game with proper GUI change....
+			lockBoard = true;
+			clearInterval(computerMoveThId);
+			incrimentScore(winningMove.winnerSymbol);
+			blinkWinningPath(winningMove.patterString);
+			setTimeout(makeBoardReadyForNewGame, 3000);
+		} else {
+			currentSymbol = getNextSymbol(currentSymbol);
+			if (movedCount >= 9) {
+				makeBoardReadyForNewGame();
+				alert("Game is Draw...");
+			}
+			whoIsNext(currentSymbol);
+		}
+	}
+}
+function resetScoreBoard() {
+	$("#play-o-stats").html(0);
+	$("#play-x-stats").html(0);
+}
+function incrimentScore(winnerSymbol) {
+	var currentScore = 0;
+	var elementObj;
+	if (winnerSymbol === "O") {
+		elementObj = $("#play-o-stats");
+	} else if (winnerSymbol === "X") {
+		elementObj = $("#play-x-stats");
+	}
+	currentScore = parseInt(elementObj.html());
+	currentScore++;
+	elementObj.html(currentScore);
+}
+
+function blinkWinningPath(patterString) {
+	
+	var speed=500;
+/*	var indexPairArr = patterString.split(";");
+	var cell1Index = indexPairArr[0];
+	var cell1 = document.getElementById(cell1Index[0]+""+cell1Index[2]);
+	
+	cell1Index = indexPairArr[1];
+	var cell2 = document.getElementById(cell1Index[0]+""+cell1Index[2]);
+	
+	cell1Index = indexPairArr[2];
+	var cell3 = document.getElementById(cell1Index[0]+""+cell1Index[2]);
+	
+	if(c%2==0) {
+		cell1.style.backgroundColor='#ccf';
+		cell2.style.backgroundColor='#ccf';
+		cell3.style.backgroundColor='#ccf';
+	}
+	else {
+		cell1.style.backgroundColor='#E7C9A6';
+		cell2.style.backgroundColor='#E7C9A6';
+		cell3.style.backgroundColor='#E7C9A6';
+	}	
+   c++;*/
+   newpattern = patterString;
+   blinkingThId = setInterval('highLightWinningPath(newpattern)', speed);
+}
+var c=0;
+function highLightWinningPath(patternString) {
+	var indexPairArr = patternString.split(";");
+	var cell1Index = indexPairArr[0];
+	var cell1 = document.getElementById(cell1Index[0]+""+cell1Index[2]);
+	
+	cell1Index = indexPairArr[1];
+	var cell2 = document.getElementById(cell1Index[0]+""+cell1Index[2]);
+	
+	cell1Index = indexPairArr[2];
+	var cell3 = document.getElementById(cell1Index[0]+""+cell1Index[2]);
+	
+	if(c%2==0) {
+		cell1.style.backgroundColor='#ccf';
+		cell2.style.backgroundColor='#ccf';
+		cell3.style.backgroundColor='#ccf';
+	}
+	else {
+		cell1.style.backgroundColor='#E7C9A6';
+		cell2.style.backgroundColor='#E7C9A6';
+		cell3.style.backgroundColor='#E7C9A6';
+	}	
+   c++;
+}
+function testIt() {
+	blinkWinningPath("0,2;1,1;2,0");
+}
+function validateArr(newArr) {
+	if (newArr) {
+		var count = newArr.length;
+		//console.log(count +" >> Array before loop " + newArr);
+		for(var x = 0; x<count; x++) {
+			var eachVal = newArr[x];
+			var y = newArr.splice(x, 1);
+			////console.log(">>> index :" + x + ">>> after splice :" + y + " >> new Arr:" + newArr);
+			;
+			validateArr(arrayDeepCopy(newArr));
+		}
+	}
+}
+function arrayDeepCopy(arrObj) {
+	var newArr = [];
+	for (var x = 0; x<arrObj.length; x++) {
+		if (arrObj[x]) {
+			newArr.push(arrObj[x]);
+		}
+	}
+	return newArr;
+}
+/**
+ * It is a main action method gets called after each move by a player.
+ * @param movedSymbol
+ * @param cellIndex
+ */
+function mainActionMethod(cellIndex) {
+	//testIt();
+	
+	//If Computer Player
+	//if (isComputerPlayer && computerSymbol !== currentSymbol) 
+	{
+		makeAMove(cellIndex);
+	}
+}
+//
+function computerMoveThread() {
+	if (isComputerPlayer && computerSymbol === currentSymbol) {
+		makeComputerMove();
+	}
+}
+function makeComputerMove() {
+	var computerNextIndex = getBestMoveIndexByMinMax();
+	makeAMove(computerNextIndex);
+}
+
+function isTerminalMove(gameBoard, player, symbol) {
+	 
+	 var countT = gameBoardPlaceHoldersArr.length;
+	 for(var i =0; i<countT; i++) {
+		 var innerArr = gameBoardPlaceHoldersArr[i];
+		 for(var j =0; j<innerArr.length; j++) {
+			 if (!gameBoard[i][j]) {
+				 gameBoard[i][j] = symbol;
+				 var terminalMove = getWinnerFromBoard(gameBoard);
+					
+					if (terminalMove) {
+						return i+""+j;
+					} else {
+						gameBoard[i][j] = "";
+					}
+			 }
+		 }
+	 }
+}
+function getBestMoveIndexByMinMax() {
+	if (movedCount > 2) {
+		var min = getNextSymbol(computerSymbol);
+		var max = computerSymbol;
+		
+		var winnerWin = isTerminalMove(gameBoardPlaceHoldersArr, WINNER, max);
+		if (winnerWin) {
+			return winnerWin;
+		}
+		var opponentWin = isTerminalMove(gameBoardPlaceHoldersArr, OPPONENT, min);
+		if (opponentWin) {
+			return opponentWin;
+		}
+		
+		var emptyBoardIndArr = getEmptyBoardIndexesArray();
+		var tempBoard = getTempBoard();
+		var computerBestMoves = [];
+		var count = emptyBoardIndArr.length;
+		for (var x=0; x<count; x++) {
+			var tempArr = [];
+			var emptyInd = emptyBoardIndArr[x];
+			
+			minMax(tempBoard, min, max, emptyBoardIndArr, computerSymbol, tempArr);
+			if (!tempArr || tempArr.length < 1) {
+				var obj = new MoveNValue(emptyInd, 0);
+				computerBestMoves.push(obj);
+			} else {
+				//console.log(">>> Got the maximum computed count.." + tempArr.length)
+				computerBestMoves.push(tempArr[0]);
+			}
+			emptyBoardIndArr = getEmptyBoardIndexesArray();
+			tempBoard = getTempBoard();
+		}
+		return getComputerBestMove(computerBestMoves);
+	}
+	var moveIndex = getCenterMoveIndex();
+	if (!moveIndex) {
+		moveIndex = getAnyEmptyIndex();
+	}
+	
+	return moveIndex;
+}
+function getAnyEmptyIndex() {
+	var returnInd;
+	for (var i = 0; i<gameBoardPlaceHoldersArr.length; i++) {
+		var innerArr = gameBoardPlaceHoldersArr[i];
+		for (var j=0; j<innerArr.length; j++) {
+			if (!innerArr[i][j]) {
+				returnInd = i+""+j;
+				break;
+			}
+		}
+		if (returnInd) {
+			break;
+		}
+	}
+	return returnInd;
+}
+function getCenterMoveIndex() {
+	var val = gameBoardPlaceHoldersArr[1][1];
+	if (!val) {
+		return "11";
+	}
+}
+function getComputerBestMove(bestMovesArr) {
+	var returnInd;
+	if (bestMovesArr) {
+		for(var x = 0; x<bestMovesArr.length; x++) {
+			eachMoveObj = bestMovesArr[x];
+			if (eachMoveObj.moveValue === 10 || eachMoveObj.moveValue === -10) {
+				returnInd = eachMoveObj.moveIndex;
+				break;
+			} else {
+				returnInd = eachMoveObj.moveIndex;
+			}
+		}
+	}
+	return returnInd;
+}
+var MoveNValue = function(moveIndex, moveValue) {
+	this.moveIndex = moveIndex;
+	this.moveValue = moveValue;
+	
+	this.isTerminal = function() {
+		if (this.moveValue === 10 || this.moveValue === -10) {
+			return true;
+		}
+		return false;
+	}
+}
+
+function minMax(gameBoard, min, max, emptyBoardIndArr, currentMove, computerBestMoves) {
+	
+	var winnerWin = isTerminalMove(gameBoard, WINNER, max);
+	if (winnerWin) {
+		var obj = new MoveNValue(winnerWin, 10);
+		computerBestMoves.push(obj);
+		return;
+	}
+	var opponentWin = isTerminalMove(gameBoard, OPPONENT, min);
+	if (opponentWin) {
+		var obj = new MoveNValue(opponentWin, -10);
+		computerBestMoves.push(obj);
+		return;
+	}
+	
+	if (emptyBoardIndArr && emptyBoardIndArr.length > 0) {
+		var emptyBoxesCount = emptyBoardIndArr.length;
+		for (var x=0; x<emptyBoxesCount; x++) {
+			var eachEmptyIndex = emptyBoardIndArr[x];
+			if (eachEmptyIndex) {
+				var rowIndex = eachEmptyIndex[0];
+				var colIndex = eachEmptyIndex[1];
+				gameBoard[rowIndex][colIndex] = currentMove;
+				var moveVal;
+				var playerSymbol;
+				if (currentMove === min) {
+					playerSymbol = OPPONENT;
+				} else {
+					playerSymbol = WINNER;
+				}
+				moveVal = getMoveValue(gameBoard, playerSymbol, max);
+				if (moveVal === -10 || moveVal === 10) {
+					var obj = new MoveNValue(eachEmptyIndex, moveVal);
+					computerBestMoves.push(obj);
+					break;
+				} else {
+					emptyBoardIndArr.splice(x, 1);
+					//var obj = new MoveNValue(eachEmptyIndex, moveVal);
+					//computerBestMoves.push(obj);
+					var newNextSymbol = getNextSymbol(currentMove);
+					var newEmptyBoardArr = arrayDeepCopy(emptyBoardIndArr);
+					minMax(gameBoard, min, max, newEmptyBoardArr, newNextSymbol, computerBestMoves);
+				}
+			}
+		}
+	}
+}
+function getResetBoard() {
+	return getTempBoard();
+}
+function getMoveValue(gameBoard, player, max) {
+	var returnVal = 0;
+	var terminalMove = getWinnerFromBoard(gameBoard);
+	
+	if (terminalMove) {
+		if (terminalMove.winnerSymbol === max) {
+			returnVal = 10;
+		} else {
+			returnVal = -10;
+		}
+	}
+	return returnVal;
+}
+function getWinnerFromBoard(gameBoard) {
+	var resultObj;
+	for (var wpInd = 0; wpInd < winningPatternsArr.length; wpInd++) {
+		var eachPattern = winningPatternsArr[wpInd];
+		var indexPairArr = eachPattern.split(";");
+		var symbol = getSymbolFromArrIndex(indexPairArr, 0, gameBoard);
+		
+		///console.log(">>> symbol :" + symbol + " >>> wpInd:" + wpInd);
+		
+		if (symbol) {
+			var nextSymbol = getSymbolFromArrIndex(indexPairArr, 1, gameBoard);
+			if (nextSymbol && symbol === nextSymbol) {
+				 nextSymbol = getSymbolFromArrIndex(indexPairArr, 2, gameBoard);
+				 
+				 if (nextSymbol && symbol === nextSymbol) {
+					 resultObj = new WinningMove(symbol, eachPattern);
+					 break;
+				 }
+			}
+		}
+	}
+	return resultObj;
+}
+function getTempBoard() {
+	var tempBoard = [['','',''],['','',''],['','','']];
+	for (var i = 0; i<gameBoardPlaceHoldersArr.length; i++) {
+		var innerArr = gameBoardPlaceHoldersArr[i];
+		for (var j=0; j<innerArr.length; j++) {
+			var eachVal = document.getElementById(i+""+j).innerHTML;
+			if (gameBoardPlaceHoldersArr[i][j]) {
+				tempBoard[i][j] = gameBoardPlaceHoldersArr[i][j];
+			}
+		}
+	}
+	return tempBoard;
+}
+function getEmptyBoardIndexesArray() {
+	var resultArr = [];
+	for (var i = 0; i<gameBoardPlaceHoldersArr.length; i++) {
+		var innerArr = gameBoardPlaceHoldersArr[i];
+		for (var j=0; j<innerArr.length; j++) {
+			var eachVal = document.getElementById(i+""+j).innerHTML;
+			if (!gameBoardPlaceHoldersArr[i][j]) {
+				resultArr.push(i+""+j);
+			}
+		}
+	}
+	return resultArr;
+}
+
+function getNextSymbol(lastMovedSymbol) {
+	if (lastMovedSymbol === FIRST_SYMBOL) {
+		return SECOND_SYMBOL;
+	} else {
+		return FIRST_SYMBOL;
+	}
+}
+/**
+ * It is a utility function which verifies all the place holders and tell if already have a winning move.
+ * It returns an object about the Winner's symbol and the pattern which is won.
+ */
+function verifyNGetWinningMove() {
+	var resultObj;
+	//console.log(">>> movedCount :" + movedCount);
+	//It is possible to win from 5th move
+	if (movedCount > 4) {
+		var rowIndex;
+		var columnIndex;
+		//console.log(">>> inside winning pattern.." + winningPatternsArr.length);
+		for (var wpInd = 0; wpInd < winningPatternsArr.length; wpInd++) {
+			var eachPattern = winningPatternsArr[wpInd];
+			var indexPairArr = eachPattern.split(";");
+			//console.log(">>> eachPattern :" + eachPattern + " >>> wpInd:" + wpInd);
+			var symbol = getSymbolFromArrIndex(indexPairArr, 0);
+			
+			//console.log(">>> symbol :" + symbol + " >>> wpInd:" + wpInd);
+			
+			if (symbol) {
+				var nextSymbol = getSymbolFromArrIndex(indexPairArr, 1);
+				if (nextSymbol && symbol === nextSymbol) {
+					 nextSymbol = getSymbolFromArrIndex(indexPairArr, 2);
+					 
+					 if (nextSymbol && symbol === nextSymbol) {
+						 resultObj = new WinningMove(symbol, eachPattern);
+						 break;
+					 }
+				}
+			}
+		}
+	}
+	return resultObj;
+}
+/**
+ * Winning Move object. Contains the Symbol won and won pattern string.
+ * @constructor
+ */
+function WinningMove(playerSymbol, patternString) {
+	this.winnerSymbol = playerSymbol;
+	this.patterString = patternString;
+}
+/**
+ * General method to reterive a winning pattern indices.
+ * @param singlePatternArr
+ * @param indexToCheck
+ * @returns symbol available at the position from board array.
+ */
+function getSymbolFromArrIndex(singlePatternArr, indexToCheck, gameBoard) {
+	var eachPair = singlePatternArr[indexToCheck];
+	var rowIndex = eachPair[0];
+	var columnIndex = eachPair[2];
+	if (!gameBoard) {
+		return gameBoardPlaceHoldersArr[rowIndex][columnIndex];
+	} else {
+		return gameBoard[rowIndex][columnIndex];
+	}
+	
+}
+/**
+ * This should be called during initialization.
+ * Populate the winning patterns array.
+ * It will help to verify later the winner.
+ */
+function populateWinningPatternArray() {
+	//Diagonal patterns.
+	winningPatternsArr.push("0,0;1,1;2,2");
+	winningPatternsArr.push("0,2;1,1;2,0");
+	
+	//Linear patterns.
+	winningPatternsArr.push("0,0;0,1;0,2");
+	winningPatternsArr.push("1,0;1,1;1,2");
+	winningPatternsArr.push("2,0;2,1;2,2");
+	winningPatternsArr.push("0,0;1,0;2,0");
+	winningPatternsArr.push("0,1;1,1;2,1");
+	winningPatternsArr.push("0,2;1,2;2,2");
+}
+/**
+ * Called after every move to update the game array.
+ * @param {string} movedSymbol - Game symbol placed.
+ * @param {int} rowIndex - row position at which placed.
+ * @param {int} columnIndex - column position at which it has moved.
+ */
+function moveMade(movedSymbol, rowIndex, columnIndex) {
+	gameBoardPlaceHoldersArr[rowIndex][columnIndex] = movedSymbol;
+}
+</script>
+  
+  
+</body>
+</html>

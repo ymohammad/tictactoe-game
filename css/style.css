@@ -1,0 +1,101 @@
+  			body {
+  				background-color: #14bdac;
+  			}
+
+  			#score-board-table {
+  				background-color: #E7C9A6;
+  			}
+  			#score-board-table th {
+  				text-align: center;
+    			width: 15%;
+    			border: 1px solid #4C2E11;
+  			}
+  			#score-board-table td {
+  				border: 1px solid #4C2E11;
+			    transition: all 0.4s ease 0s;
+			    font-size: 15px;
+			    font-weight: bold;
+			    text-align: center;
+			    padding: 4px 1px 4px 1px;
+  			}
+  			#gameboard_table {
+  				background-color: #E7C9A6;
+  				margin: 0 auto;
+			    width: 400px;
+			    height: 400px;
+			    table-layout:fixed;
+  			}
+  			#gameboard_table tr {
+  				border-color: #4C2E11;
+    			border-width: 2px; 
+  			}
+  			#gameboard_table td {
+    			border: 2px solid #4C2E11;
+			    transition: all 0.4s ease 0s;
+			    font-size: 80px;
+			    font-weight: bold;
+			    text-align: center;
+			    height: 133px;
+			    width: 133px;
+			    cursor: pointer;
+  			}
+  			.game-board {
+  				
+  			}
+  			table td:hover{
+			  background: #ffa31a;
+			}
+
+  			.site-footer {
+				background-color: #000;
+			    border-top: 1px solid #333;
+			    color: #999;
+			    font-size: 15px;
+			    text-align: center;
+				padding: 15px 0;
+				font-family: Alegreya;
+				margin-top: 2%;
+			}
+			.initial-board-div {
+				background-color: #E7C9A6;
+			    width: 100%;
+			    height: 200px;
+			    display: inline-block;
+			    border: 2px solid #4C2E11;
+			}
+			.header-style {
+				margin: 20px auto 20px auto;
+			    display: block;
+			    font-family: 'Gentium Book Basic', serif;
+			    font-weight: bolder;
+			    text-align: center;
+			}
+			.game-stats {
+				widtH: 70%;
+    			margin-left: 24%;
+    			margin-top: 12%;
+			}
+			.local-button{
+				 display: inline-block;
+				 border:1px solid #C9AE34;
+				 color: #000000;
+				 border-radius: 3px 3px 3px 3px;
+				 -webkit-border-radius: 3px 3px 3px 3px;
+				 -moz-border-radius: 3px 3px 3px 3px;
+				 font-family: Arial Black;
+				 width: auto;
+				 height: auto;
+				 font-size: 14px;
+				 padding: 2px 25px;
+				 text-shadow: 0 1px 0 #FFFFFF;
+				 background-color: #E7C9A6;
+			}
+				
+			.local-button:hover, .local-button:active{
+				 border:1px solid #967D09;
+				 color: #FFFFFF;
+				 box-shadow: inset 0 1px 0 0 #FFF6CE,inset 0 -1px 0 0 #E3C852,inset 0 0 0 1px #FCE88D;
+				 -moz-box-shadow: inset 0 1px 0 0 #FFF6CE,inset 0 -1px 0 0 #E3C852,inset 0 0 0 1px #FCE88D;
+				 -webkit-box-shadow: inset 0 1px 0 0 #FFF6CE,inset 0 -1px 0 0 #E3C852,inset 0 0 0 1px #FCE88D;
+				 background-color: #4C2E11;
+			}
